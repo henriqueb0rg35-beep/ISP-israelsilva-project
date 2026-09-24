@@ -4,7 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dia de Festão e Integração em Família | Israel Silva Academy</title>
+        <link rel="icon" type="image/jpeg" href="logoisraelacademy.jpeg">
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&display=swap" rel="stylesheet">
+
     <style>
         /* Variáveis de Tema Padrão (Claro) */
         :root {
@@ -26,6 +28,7 @@
             --verde-wpp-hover: #128C7E;
         }
 
+        
         /* Variáveis de Tema Escuro */
         body.dark-mode {
             --roxo-principal: #1e0b3b;
@@ -253,10 +256,85 @@
             70% { box-shadow: 0 0 0 15px rgba(37, 211, 102, 0); }
             100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
         }
+        /* --- ESTILOS DO VÍDEO INLINE (LAZY LOAD) --- */
+        .video-grid { width: 100%; }
+        .video-card { background: #000; border-bottom: 4px solid var(--roxo-claro); }
+        /* Substitua a classe antiga por esta nova */
+        .video-inline-wrap { 
+            position: relative; 
+            width: 100%; 
+            /* A mágica aqui: 56.25% é o vídeo (16:9) + 55px fixos dedicados só para a barra do Google Drive */
+            padding-bottom: calc(56.25% + 55px); 
+            height: 0; 
+            overflow: hidden; 
+        }
+        
+        .video-inline-trigger {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: #1e293b; border: none; cursor: pointer; display: flex;
+            flex-direction: column; align-items: center; justify-content: center;
+            z-index: 10; transition: 0.3s;
+        }
+        .video-inline-trigger:hover { background: #334155; }
+        
+        .play-overlay {
+            width: 70px; height: 70px; background: var(--dourado); border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 4px 15px rgba(217, 119, 6, 0.5); animation: pulse 2s infinite;
+        }
+        .play-btn { color: white; font-size: 28px; margin-left: 6px; }
+        
+        .video-inline-player {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            display: none; flex-direction: column; z-index: 20; background: #000;
+        }
+        .video-inline-player.active { display: flex; } /* Ativado via JS */
+        
+        .player-wrap { position: relative; width: 100%; flex-grow: 1; }
+        .player-wrap iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; }
+        
+        .close-player {
+            background: #ef4444; color: white; border: none; padding: 12px;
+            font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 14px;
+            letter-spacing: 1px; transition: 0.2s;
+        }
+        .close-player:hover { background: #dc2626; }
+        
+        /* --- RODAPÉ INSTITUCIONAL (GLOBAL FOOTER) --- */
+        .site-footer {
+            width: 100%;
+            background-color: var(--roxo-principal);
+            color: #ffffff;
+            text-align: center;
+            padding: 30px 20px;
+            font-size: 14px;
+            border-top: 5px solid var(--dourado);
+            margin-top: 40px; /* Cria um respiro após o conteúdo central */
+        }
+        
+        .site-footer p {
+            margin-bottom: 12px;
+            color: #f8fafc;
+        }
+
+        .site-footer strong {
+            color: var(--dourado);
+            font-weight: 800;
+            letter-spacing: 0.5px;
+        }
+
+        .footer-credits {
+            margin-top: 20px;
+            padding-top: 15px;
+            border-top: 1px solid rgba(255, 255, 255, 0.15);
+            font-size: 12px;
+            opacity: 0.9;
+        }
     </style>
 </head>
 <body>
 
+    
     <!-- Barra de Ferramentas -->
     <div class="tools-bar">
         <button class="tool-btn" onclick="toggleTema()">🌓 Tema Escuro</button>
@@ -266,44 +344,76 @@
     <div class="container">
         <!-- Cabeçalho -->
         <header class="header">
-            <img src="logoisraelacademy.jpeg" alt="Israel Silva Academy Logo">
+            <img src="logoisraelacademy.jpeg" alt="Israel Silva Academy & Artes Marciais Logo">
             <h1>Dia de Festão e Integração em Família</h1>
+            <p class="intro">Veja o vídeo abaixo sobre o dia especial com sua família.</p>
         </header>
 
-        <!-- Vídeo -->
-        <div class="video-container">
-            <iframe src="https://drive.google.com/file/d/ID_DO_SEU_VIDEO_AQUI/preview" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+<!-- Vídeo Otimizado (Lazy Load) -->
+<div class="video-grid">
+    <div class="video-card">
+        <div class="video-inline-wrap">
+            
+            <!-- GATILHO: Botão de Play -->
+            <button type="button" class="video-inline-trigger" id="btn-play-video">
+                <span class="play-overlay"><span class="play-btn">▶</span></span>
+                <span style="position:absolute; bottom:20px; width:100%; color:white; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">Clique para assistir</span>
+            </button>
+            
+            <!-- PLAYER -->
+            <div class="video-inline-player" id="video-player-container">
+                <div class="player-wrap">
+                    <iframe id="video-iframe" src="about:blank" data-src="https://drive.google.com/file/d/1Qsax1RHg0bRkxnH9W91K2Q44vBeLYMwS/preview" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+                </div>
+                <!-- O botão vermelho de fechar foi removido daqui! -->
+            </div>
+            
         </div>
+    </div>
+</div>
+            
+        </div>
+    </div>
+</div>
 
         <div class="content" id="conteudo-leitura">
             <button id="btn-leitura" onclick="lerConteudo()">🔊 Ouvir Texto da Página</button>
-            <p class="intro">Venha viver um dia inesquecível com a gente no Centro Esportivo da Vila Nova! Preparamos um momento especial e inteiramente gratuito para as crianças, os pais e toda a família.</p>
-
+            <p class="intro">​🎈 RECREAÇÃO ISRAEL SILVA ACADEMY 🎈</p>
+​            <p>Olá, pais e responsáveis! Neste sábado teremos um momento super especial de diversão e integração para as nossas crianças!</p>
+            <p class="intro">Venha participar dessa interação com artes marciais e brincadeiras</p>
             <div class="info-box">
-                <p><strong>📅 Data:</strong> 05 de Setembro</p>
-                <p><strong>⏰ Horário:</strong> A partir das 08h00 da manhã</p>
-                <p><strong>📍 Local:</strong> Centro Esportivo da Vila Nova — Rua Guaíba</p>
+                
+                <!-- Certo: O ID bate perfeitamente com a Coluna A da planilha -->
+                <p><strong>📅 Data:</strong> <span id="txt-data">Carregando...</span></p>
+                <!-- Errado: Sem ID, o JavaScript não saberá onde injetar o dado -->
+                <p><strong>📅 Data:</strong> <span>Carregando...</span></p
+                                                                          
+                <p><strong>⏰ Horário:</strong> A partir das 14:30</p>
+                <p><strong>📍 Local:</strong> Quadra de Areia e Parquinho da Vila Nova — Rua Guaíba, 72 - Londrina</p>
                 <p><strong>👨‍👩‍👧 Público:</strong> Crianças a partir de 1 aninho e toda a família</p>
-                <p><strong>🥋 Organizador:</strong> Israel Silva</p>
-                <p><strong>📞 Contato:</strong> (43) *****-****</p>
+                <p><strong>🥋 Organizador:</strong> Israel Silva - Academy de Artes Marciais</p>
+                <p><strong>Instagram:</strong><a href="https://www.instagram.com/academiaisraelsilva/" class="btn-instagram" target="_blank">@academiaisraelsilva</a></p>
+                <p><strong>📞 Contato:</strong> (43) 99604-9968</p>
             </div>
 
             <h2>O que teremos de especial?</h2>
             <ul class="benefits">
                 <li><strong>🍧 Copo de Açaí Grátis:</strong> Um copinho de açaí especial para cada criança!</li>
                 <li><strong>🍿 Lanchinhos Liberados:</strong> Pipoca e algodão-doce à vontade.</li>
-                <li><strong>🏰 Cama Elástica:</strong> Muito pular e diversão garantida para os pequenos.</li>
-                <li><strong>🏖️ Quadra de Areia Liberada:</strong> Espaço exclusivo para os pais brincarem.</li>
+                <li><strong>🏰 Cama Elástica:</strong> Muita energia e diversão garantida para os pequenos.</li>
+                <li><strong>🏖️ Quadra de Areia Liberada:</strong> Espaço exclusivo para os pais com seus filhos.</li>
                 <li><strong>👨‍👩‍👧 Dinâmicas Pais e Filhos:</strong> Gincanas e brincadeiras especiais na areia.</li>
             </ul>
 
             <h2>Faça sua Inscrição Gratuita!</h2>
-            <p style="text-align: center; margin-bottom: 20px;">Preencha os dados abaixo para garantir a vaga da sua família!</p>
+            <p style="text-align: center; margin-bottom: 20px;">​📌 CONFIRMAÇÃO DE PRESENÇA!</p>
+            <p>Para confirmar a presença do seu filho e garantir a participação, por favor, preencha o formulário abaixo:</p>
 
             <!-- FORMULÁRIO -->
             <div class="form-box">
                 <!-- Alteração de Arquitetura: target="_blank" faz a submissão abrir em nova aba para não perder a página atual -->
-                <form action="https://formsubmit.co/henriqueb0rg35@gmail.com" method="POST" target="_blank">
+                <form action="https://formsubmit.co/israelcp.luta@gmail.com" method="POST" target="_blank">
+                <form action="https://formsubmit.co/henrique.b0rg35@gmail.com" method="POST" target="_blank">
                     
                     <input type="hidden" name="_captcha" value="false">
                     <input type="hidden" name="_subject" value="Nova Inscrição - Evento Família!">
@@ -369,14 +479,74 @@
             <p>Entre no nosso Grupo VIP do WhatsApp agora mesmo para receber conteúdos exclusivos, dicas de integração e ficar por dentro das regras e novidades do projeto.</p>
             
             <!-- Cole o link do grupo de WhatsApp abaixo -->
-            <a href="https://chat.whatsapp.com/SEU_LINK_DE_CONVITE_AQUI" class="btn-whatsapp" target="_blank">
+            <a href="https://chat.whatsapp.com/DAZpUEAZRGnLKS5B1WEhBd?s=cl&p=a&mlu=4" class="btn-whatsapp" target="_blank">
                 ENTRAR NO GRUPO AGORA
             </a>
         </div>
     </div>
 
+    <!-- RODAPÉ INSTITUCIONAL -->
+    <footer class="site-footer">
+        <div class="footer-content">
+            <p><strong>Propriedade e Organização:</strong><br> Israel Silva Academy - Artes Marciais</p>
+        </div>
+        
+        <div class="footer-credits">
+            <p>&copy; 2026 Todos os direitos reservados.<br>
+        </div>
+    </footer>
+
     <!-- Scripts -->
     <script>
+
+        // O evento DOMContentLoaded garante que o JS só rode após o HTML estar 100% desenhado na tela.
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // 1. O ENDPOINT: A URL do CSV gerada pelo Google Sheets
+    const urlPlanilhaCSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSGSkU7VAfpdyj7RM1bVVtuBYDQU0_QhulPCUoS5g4W0YAFbcSsQdn2nEE6kkSREMaLT9YAVku6rNtr/pub?output=csv';
+
+    // 2. FETCH API: Fazemos uma requisição GET assíncrona para o servidor do Google
+    fetch(urlPlanilhaCSV)
+        .then(resposta => resposta.text()) // Converte o arquivo binário recebido em texto puro
+        .then(dadosCSV => {
+            
+            // 3. PARSER (Análise de Dados): 
+            // O CSV retorna um texto gigante. O split('\n') quebra esse texto em um Array, onde cada linha da planilha vira um item.
+            const linhas = dadosCSV.split('\n');
+            
+            // 4. LAÇO DE REPETIÇÃO: Passamos por cada linha da planilha
+            linhas.forEach(linha => {
+                
+                // Em um CSV, a Coluna A e B são separadas por uma vírgula. Achamos a posição dela.
+                const indexVirgula = linha.indexOf(',');
+                
+                // Se existir uma vírgula, dividimos a string em duas partes.
+                if (indexVirgula > -1) {
+                    // Pega do início (0) até a vírgula (Removemos os espaços com .trim())
+                    const idElemento = linha.substring(0, indexVirgula).trim();
+                    
+                    // Pega da vírgula até o final da linha
+                    let texto = linha.substring(indexVirgula + 1).trim();
+                    
+                    // 5. TRATAMENTO DE EXCEÇÃO (A regra de ouro do Sênior):
+                    // Se o cliente digitar uma vírgula DENTRO do texto dele na planilha, o Google encapsula o texto inteiro em aspas duplas ("texto, com virgula"). Precisamos limpar essas aspas, senão elas aparecem na Landing Page.
+                    if (texto.startsWith('"') && texto.endsWith('"')) {
+                        texto = texto.substring(1, texto.length - 1);
+                    }
+
+                    // 6. INJEÇÃO NO DOM: Procura o ID no HTML e injeta o texto limpo
+                    const elementoHTML = document.getElementById(idElemento);
+                    if (elementoHTML) {
+                        elementoHTML.innerText = texto;
+                    }
+                }
+            });
+        })
+        // 7. TRATAMENTO DE ERRO: Se a internet cair ou a URL estiver errada, não quebra o resto do site.
+        .catch(erro => console.error('Erro na sincronização de dados NeroTec:', erro));
+});
+        //FIM DO PROCESSO SINCRONIZADO COM GOOGLE SHEETS
+        
         function toggleTema() { document.body.classList.toggle('dark-mode'); }
         function toggleAcessibilidade() {
             document.body.classList.toggle('accessibility-mode');
@@ -416,6 +586,20 @@
             document.getElementById('btn-leitura').innerText = '⏹️ Parar Leitura';
             lendo = true;
         }
+// Controle do Vídeo Otimizado (Lazy Load) - Sem botão fechar
+document.addEventListener('DOMContentLoaded', function() {
+    const btnPlay = document.getElementById('btn-play-video');
+    const playerContainer = document.getElementById('video-player-container');
+    const iframe = document.getElementById('video-iframe');
+
+    // Executa a injeção do vídeo apenas quando o Play é clicado
+    if (btnPlay && playerContainer && iframe) {
+        btnPlay.addEventListener('click', function() {
+            iframe.src = iframe.getAttribute('data-src');
+            playerContainer.classList.add('active');
+        });
+    }
+});
     </script>
 </body>
 </html>
