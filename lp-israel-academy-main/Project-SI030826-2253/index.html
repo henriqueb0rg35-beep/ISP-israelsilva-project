@@ -405,11 +405,18 @@
                 
                 <!--ID txt-hour Coluna A - Linha 6-->
                 <li><span id="txt-content1"> </span></li>
-                
-                <li><strong>🍿 Lanchinhos Liberados:</strong> Pipoca e algodão-doce à vontade.</li>
-                <li><strong>🏰 Cama Elástica:</strong> Muita energia e diversão garantida para os pequenos.</li>
-                <li><strong>🏖️ Quadra de Areia Liberada:</strong> Espaço exclusivo para os pais com seus filhos.</li>
-                <li><strong>👨‍👩‍👧 Dinâmicas Pais e Filhos:</strong> Gincanas e brincadeiras especiais na areia.</li>
+
+                 <!--ID txt-hour Coluna A - Linha 7-->
+                <li> <span id="txt-content2"> </span> </li>
+
+                 <!--ID txt-hour Coluna A - Linha 8-->
+                <li> <span id="txt-content3"> </span></li>
+
+                 <!--ID txt-hour Coluna A - Linha 9-->
+                <li> <span id="txt-content4"> </span> </li>
+
+                 <!--ID txt-hour Coluna A - Linha 10-->
+                <li> <span id="txt-content5"> </span> </li>
             </ul>
 
             <h2>Faça sua Inscrição Gratuita!</h2>
@@ -511,42 +518,43 @@
     <!-- Scripts -->
     <script>
 
-        // O evento DOMContentLoaded garante que o JS só rode após o HTML estar 100% desenhado na tela.
+        // Motor de Sincronização de Dados (Serverless) - Versão Blindada NeroTec
 document.addEventListener('DOMContentLoaded', function() {
     
-    // 1. O ENDPOINT: A URL do CSV gerada pelo Google Sheets
-    const urlPlanilhaCSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSGSkU7VAfpdyj7RM1bVVtuBYDQU0_QhulPCUoS5g4W0YAFbcSsQdn2nEE6kkSREMaLT9YAVku6rNtr/pub?output=csv';
+    // COLE AQUI O LINK CSV GERADO NO PASSO ANTERIOR
+    const urlPlanilhaCSV = 'https://docs.google.com/spreadsheets/d/1kRoGerl8aZSQ6hy44FF8xDO3VneEAFfwPinMvxxpEE4/edit?usp=sharing';
 
-    // 2. FETCH API: Fazemos uma requisição GET assíncrona para o servidor do Google
     fetch(urlPlanilhaCSV)
-        .then(resposta => resposta.text()) // Converte o arquivo binário recebido em texto puro
+        .then(resposta => resposta.text())
         .then(dadosCSV => {
-            
-            // 3. PARSER (Análise de Dados): 
-            // O CSV retorna um texto gigante. O split('\n') quebra esse texto em um Array, onde cada linha da planilha vira um item.
+            // Quebra o blocão de texto em linhas
             const linhas = dadosCSV.split('\n');
             
-            // 4. LAÇO DE REPETIÇÃO: Passamos por cada linha da planilha
             linhas.forEach(linha => {
+                // Trava de segurança: Pula linhas que estiverem totalmente em branco
+                if (linha.trim() === '') return;
+
+                // A MÁGICA DO SÊNIOR: Regex que divide o texto pelas vírgulas que separam as colunas, 
+                // mas tem a inteligência de IGNORAR as vírgulas que fazem parte do texto do cliente (dentro de aspas).
+                const colunas = linha.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
                 
-                // Em um CSV, a Coluna A e B são separadas por uma vírgula. Achamos a posição dela.
-                const indexVirgula = linha.indexOf(',');
-                
-                // Se existir uma vírgula, dividimos a string em duas partes.
-                if (indexVirgula > -1) {
-                    // Pega do início (0) até a vírgula (Removemos os espaços com .trim())
-                    const idElemento = linha.substring(0, indexVirgula).trim();
+                // Exigimos que existam pelo menos as Colunas A e B (índices 0 e 1 do Array)
+                if (colunas.length >= 2) {
                     
-                    // Pega da vírgula até o final da linha
-                    let texto = linha.substring(indexVirgula + 1).trim();
+                    // Pegamos ESTRITAMENTE a Coluna A e a Coluna B
+                    const idElemento = colunas[0].trim();
+                    let texto = colunas[1].trim(); 
                     
-                    // 5. TRATAMENTO DE EXCEÇÃO (A regra de ouro do Sênior):
-                    // Se o cliente digitar uma vírgula DENTRO do texto dele na planilha, o Google encapsula o texto inteiro em aspas duplas ("texto, com virgula"). Precisamos limpar essas aspas, senão elas aparecem na Landing Page.
+                    // Se o cliente escreveu na Coluna C, D ou Z, o código simplesmente as ignora, pois estão nos índices 2, 3, etc.
+
+                    // Limpa as aspas extras de formatação do Google Sheets
                     if (texto.startsWith('"') && texto.endsWith('"')) {
                         texto = texto.substring(1, texto.length - 1);
+                        // Substitui quebras de linha da planilha (<br> invisível) por texto corrido para não quebrar o HTML
+                        texto = texto.replace(/""/g, '"'); 
                     }
 
-                    // 6. INJEÇÃO NO DOM: Procura o ID no HTML e injeta o texto limpo
+                    // Injeta a Coluna B dentro do elemento HTML que tem o ID da Coluna A
                     const elementoHTML = document.getElementById(idElemento);
                     if (elementoHTML) {
                         elementoHTML.innerText = texto;
@@ -554,7 +562,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
             });
         })
-        // 7. TRATAMENTO DE ERRO: Se a internet cair ou a URL estiver errada, não quebra o resto do site.
         .catch(erro => console.error('Erro na sincronização de dados NeroTec:', erro));
 });
         //FIM DO PROCESSO SINCRONIZADO COM GOOGLE SHEETS
