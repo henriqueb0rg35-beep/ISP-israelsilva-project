@@ -384,16 +384,16 @@
             <div class="info-box">
                 
                 <!-- Certo: O ID bate perfeitamente com a Coluna A - Linha 2 da planilha -->
-                <p><strong>📅 Data:</strong> <span id="txt-data">Carregando... </span></p>
+                <p><strong>📅 Data:</strong> <span id="txt-data"> Carregando... </span></p>
 
                 <!--ID txt-hour Coluna A - Linha 3-->
-                <p><strong>⏰ Horário:</strong> <span id="txt-hour">Carregando... </span></p>
+                <p><strong>⏰ Horário:</strong> <span id="txt-hour"> Carregando... </span></p>
 
                 <!--ID txt-hour Coluna A - Linha 4-->
-                <p><strong>📍 Local:</strong> <span id="txt-local">Carregando... </span></p>
+                <p><strong>📍 Local:</strong> <span id="txt-local"> Carregando... </span></p>
 
                  <!--ID txt-hour Coluna A - Linha 5-->
-                <p><strong>👨‍👩‍👧 Público:</strong> <span id="txt-target">Carregando... </span></p>
+                <p><strong>👨‍👩‍👧 Público:</strong> <span id="txt-target"> Carregando... </span></p>
                 
                 <p><strong>🥋 Organizador:</strong> Israel Silva - Academy de Artes Marciais</p>
                 <p><strong>Instagram:</strong><a href="https://www.instagram.com/academiaisraelsilva/" class="btn-instagram" target="_blank">@academiaisraelsilva</a></p>
@@ -518,46 +518,59 @@
     <!-- Scripts -->
     <script>
 
-        // Motor de Sincronização de Dados (Serverless) - Versão Blindada NeroTec
+        // Motor de Sincronização de Dados (Serverless) - Parser Estrutural NeroTec
 document.addEventListener('DOMContentLoaded', function() {
     
-    // COLE AQUI O LINK CSV GERADO NO PASSO ANTERIOR
+    // COLE AQUI O LINK CSV GERADO NO GOOGLE SHEETS
     const urlPlanilhaCSV = 'https://docs.google.com/spreadsheets/d/1kRoGerl8aZSQ6hy44FF8xDO3VneEAFfwPinMvxxpEE4/edit?usp=sharing';
 
     fetch(urlPlanilhaCSV)
         .then(resposta => resposta.text())
         .then(dadosCSV => {
-            // Quebra o blocão de texto em linhas
-            const linhas = dadosCSV.split('\n');
+            // Normaliza as quebras de linha (blinda contra diferenças de Windows e Mac)
+            const linhas = dadosCSV.split(/\r?\n/);
             
             linhas.forEach(linha => {
-                // Trava de segurança: Pula linhas que estiverem totalmente em branco
-                if (linha.trim() === '') return;
+                if (linha.trim() === '') return; // Pula linhas vazias
 
-                // A MÁGICA DO SÊNIOR: Regex que divide o texto pelas vírgulas que separam as colunas, 
-                // mas tem a inteligência de IGNORAR as vírgulas que fazem parte do texto do cliente (dentro de aspas).
-                const colunas = linha.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                // Localiza a PRIMEIRA vírgula (Fronteira entre Coluna A e B)
+                const primeiraVirgula = linha.indexOf(',');
                 
-                // Exigimos que existam pelo menos as Colunas A e B (índices 0 e 1 do Array)
-                if (colunas.length >= 2) {
+                if (primeiraVirgula > -1) {
+                    // Isola a Coluna A (ID do elemento)
+                    const idElemento = linha.substring(0, primeiraVirgula).trim();
                     
-                    // Pegamos ESTRITAMENTE a Coluna A e a Coluna B
-                    const idElemento = colunas[0].trim();
-                    let texto = colunas[1].trim(); 
-                    
-                    // Se o cliente escreveu na Coluna C, D ou Z, o código simplesmente as ignora, pois estão nos índices 2, 3, etc.
+                    // Isola tudo que vem DEPOIS da primeira vírgula
+                    let restoDaLinha = linha.substring(primeiraVirgula + 1).trim();
+                    let textoColunaB = '';
 
-                    // Limpa as aspas extras de formatação do Google Sheets
-                    if (texto.startsWith('"') && texto.endsWith('"')) {
-                        texto = texto.substring(1, texto.length - 1);
-                        // Substitui quebras de linha da planilha (<br> invisível) por texto corrido para não quebrar o HTML
-                        texto = texto.replace(/""/g, '"'); 
+                    // Lógica para capturar APENAS a Coluna B e ignorar C, D, E...
+                    if (restoDaLinha.startsWith('"')) {
+                        // Se o cliente usou vírgulas no texto, o Sheets coloca tudo entre aspas.
+                        // Procuramos onde a aspas fecha para definir o fim da Coluna B.
+                        const fechamentoAspas = restoDaLinha.indexOf('"', 1);
+                        if (fechamentoAspas > -1) {
+                            textoColunaB = restoDaLinha.substring(1, fechamentoAspas);
+                        } else {
+                            textoColunaB = restoDaLinha.substring(1); // Fallback caso esqueça as aspas
+                        }
+                    } else {
+                        // Se não tem aspas, a Coluna B acaba na próxima vírgula (Início da Coluna C)
+                        const segundaVirgula = restoDaLinha.indexOf(',');
+                        if (segundaVirgula > -1) {
+                            textoColunaB = restoDaLinha.substring(0, segundaVirgula); // Ignora a C em diante
+                        } else {
+                            textoColunaB = restoDaLinha; // Não tem Coluna C, pega tudo
+                        }
                     }
 
-                    // Injeta a Coluna B dentro do elemento HTML que tem o ID da Coluna A
+                    // Limpeza final de formatação do Google
+                    textoColunaB = textoColunaB.trim().replace(/""/g, '"');
+
+                    // Injeta a Coluna B blindada no HTML
                     const elementoHTML = document.getElementById(idElemento);
                     if (elementoHTML) {
-                        elementoHTML.innerText = texto;
+                        elementoHTML.innerText = textoColunaB;
                     }
                 }
             });
