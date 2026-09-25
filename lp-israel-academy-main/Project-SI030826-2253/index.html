@@ -383,13 +383,15 @@
             <p class="intro">Venha participar dessa interação com artes marciais e brincadeiras</p>
             <div class="info-box">
                 
-                <!-- Certo: O ID bate perfeitamente com a Coluna A da planilha -->
+                <!-- Certo: O ID bate perfeitamente com a Coluna A - Linha 2 da planilha -->
                 <p><strong>📅 Data:</strong> <span id="txt-data">Carregando...</span></p>
-                <!-- Errado: Sem ID, o JavaScript não saberá onde injetar o dado -->
-                <p><strong>📅 Data:</strong> <span>Carregando...</span></p
-                                                                          
-                <p><strong>⏰ Horário:</strong> A partir das 14:30</p>
-                <p><strong>📍 Local:</strong> Quadra de Areia e Parquinho da Vila Nova — Rua Guaíba, 72 - Londrina</p>
+
+                <!--ID txt-hour Coluna A - Linha 3-->
+                <p><strong>⏰ Horário:</strong> <span id="txt-hour">Carregando...</span></p>
+
+                 <!--ID txt-hour Coluna A - Linha 4-->
+                <p><strong>📍 Local:</strong> <span id="txt-local">Carregando...</span></p>
+                
                 <p><strong>👨‍👩‍👧 Público:</strong> Crianças a partir de 1 aninho e toda a família</p>
                 <p><strong>🥋 Organizador:</strong> Israel Silva - Academy de Artes Marciais</p>
                 <p><strong>Instagram:</strong><a href="https://www.instagram.com/academiaisraelsilva/" class="btn-instagram" target="_blank">@academiaisraelsilva</a></p>
@@ -426,6 +428,11 @@
                     <div class="form-group">
                         <label for="email">E-mail *</label>
                         <input type="email" id="email" name="Email" class="form-input" required placeholder="seuemail@exemplo.com">
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Telefone para contato *</label>
+                        <input type="cellphone" id="cellphone" name="Cellphone" class="form-input" required placeholder="(DDD) 12345-1234">
                     </div>
 
                     <div class="form-group">
