@@ -354,16 +354,16 @@
     <div class="video-card">
         <div class="video-inline-wrap">
             
-            <!-- GATILHO: Botão de Play 
+            <!-- GATILHO: Botão de Play -->
             <button type="button" class="video-inline-trigger" id="btn-play-video">
                 <span class="play-overlay"><span class="play-btn">▶</span></span>
                 <span style="position:absolute; bottom:20px; width:100%; color:white; font-weight: bold; text-transform: uppercase; letter-spacing: 1px;">Clique para assistir</span>
-            </button> -->
+            </button> 
             
             <!-- PLAYER -->
             <div class="video-inline-player" id="video-player-container">
                 <div class="player-wrap">
-                    <iframe id="video-iframe" src="about:blank" data-src="https://drive.google.com/file/d/1Qsax1RHg0bRkxnH9W91K2Q44vBeLYMwS/preview" allow="autoplay; encrypted-media" allowfullscreen></iframe>
+                    <iframe id="Link_do_Video" src="about:blank" data-src=" " allow="autoplay; encrypted-media" allowfullscreen></iframe>
                 </div>
                 <!-- O botão vermelho de fechar foi removido daqui! -->
             </div>
@@ -620,16 +620,77 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('btn-leitura').innerText = '⏹️ Parar Leitura';
             lendo = true;
         }
-// Controle do Vídeo Otimizado (Lazy Load) - Sem botão fechar
+// Motor de Sincronização Serverless & Mídia - NeroTec
 document.addEventListener('DOMContentLoaded', function() {
+    
+    // 1. SINCRONIZAÇÃO COM O GOOGLE SHEETS
+    const urlPlanilhaCSV = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSGSkU7VAfpdyj7RM1bVVtuBYDQU0_QhulPCUoS5g4W0YAFbcSsQdn2nEE6kkSREMaLT9YAVku6rNtr/pub?output=csv';
+
+    fetch(urlPlanilhaCSV)
+        .then(resposta => resposta.text())
+        .then(dadosCSV => {
+            const linhas = dadosCSV.split(/\r?\n/);
+            
+            linhas.forEach(linha => {
+                if (linha.trim() === '') return; // Pula linhas vazias
+
+                const primeiraVirgula = linha.indexOf(',');
+                
+                if (primeiraVirgula > -1) {
+                    const idElemento = linha.substring(0, primeiraVirgula).trim();
+                    let restoDaLinha = linha.substring(primeiraVirgula + 1).trim();
+                    let textoColunaB = '';
+
+                    // Tratamento de aspas da planilha
+                    if (restoDaLinha.startsWith('"')) {
+                        const fechamentoAspas = restoDaLinha.indexOf('"', 1);
+                        if (fechamentoAspas > -1) {
+                            textoColunaB = restoDaLinha.substring(1, fechamentoAspas);
+                        } else {
+                            textoColunaB = restoDaLinha.substring(1);
+                        }
+                    } else {
+                        const segundaVirgula = restoDaLinha.indexOf(',');
+                        if (segundaVirgula > -1) {
+                            textoColunaB = restoDaLinha.substring(0, segundaVirgula);
+                        } else {
+                            textoColunaB = restoDaLinha;
+                        }
+                    }
+
+                    textoColunaB = textoColunaB.trim().replace(/""/g, '"');
+
+                    // Roteamento de Injeção de Dados e Mídia
+                    const elementoHTML = document.getElementById(idElemento);
+                    
+                    if (elementoHTML) {
+                        if (elementoHTML.tagName === 'IFRAME') {
+                            // Injeta no vídeo oculto
+                            elementoHTML.setAttribute('data-src', textoColunaB);
+                        } else if (elementoHTML.tagName === 'A') {
+                            // Injeta no link do botão
+                            elementoHTML.href = textoColunaB;
+                        } else {
+                            // Injeta no texto
+                            elementoHTML.innerText = textoColunaB;
+                        }
+                    }
+                }
+            });
+        })
+        .catch(erro => console.error('Erro na sincronização de dados NeroTec:', erro));
+
+    // 2. CONTROLE DO VÍDEO (LAZY LOAD OTIMIZADO)
     const btnPlay = document.getElementById('btn-play-video');
     const playerContainer = document.getElementById('video-player-container');
-    const iframe = document.getElementById('video-iframe');
+    
+    // Conecta com o ID exato da Coluna A da Planilha
+    const iframeVideo = document.getElementById('Link_do_Video'); 
 
-    // Executa a injeção do vídeo apenas quando o Play é clicado
-    if (btnPlay && playerContainer && iframe) {
+    if (btnPlay && playerContainer && iframeVideo) {
         btnPlay.addEventListener('click', function() {
-            iframe.src = iframe.getAttribute('data-src');
+            // Puxa o link do data-src que a planilha acabou de preencher
+            iframeVideo.src = iframeVideo.getAttribute('data-src');
             playerContainer.classList.add('active');
         });
     }
